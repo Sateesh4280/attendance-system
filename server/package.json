@@ -11,6 +11,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "dev:db": "node scripts/dev-mongo.mjs",
     "seed": "node src/seed.js",
     "test": "node --test --test-concurrency=1 tests/*.test.js"
   },

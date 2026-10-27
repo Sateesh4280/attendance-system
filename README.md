@@ -311,6 +311,7 @@ attendly/
 │   └── vite.config.js           # Dev server + /api proxy
 │
 ├── server/                      # Express API
+│   ├── scripts/dev-mongo.mjs    # Optional in-memory MongoDB for local dev
 │   ├── src/
 │   │   ├── config/db.js         # Mongoose connection
 │   │   ├── controllers/         # auth, students, classes, subjects, attendance,
@@ -340,7 +341,7 @@ attendly/
 
 - **Node.js 20 or newer** (Node 22 LTS recommended)
 - **npm 9 or newer**
-- **MongoDB 7/8** running locally, or a free **MongoDB Atlas** cluster
+- **MongoDB 7/8** running locally, a free **MongoDB Atlas** cluster, or the bundled in-memory dev database (no install required)
 - Git (only needed to clone/deploy)
 
 > **Windows PowerShell:** if `npm` is blocked by the execution policy (`npm.ps1 cannot be loaded`), use `npm.cmd` for every command in this guide, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once.
@@ -353,7 +354,7 @@ cd attendly
 npm run setup
 ```
 
-Then configure the server environment, seed demo data, and start both processes:
+Then configure the server environment, start a database, seed demo data, and run both processes:
 
 ```bash
 # 1. Create the server env file
@@ -362,11 +363,16 @@ cp server/.env.example server/.env        # macOS/Linux
 
 # 2. Edit server/.env and set MONGODB_URI + JWT_SECRET
 
-# 3. Seed demo data (optional, destructive)
+# Terminal 1 — optional in-memory database (skip if using MongoDB/Atlas)
+npm run dev:db
+
+# Terminal 2 — seed once
 npm run seed:force
 
-# 4. Run the API and the SPA in separate terminals
+# Terminal 3 — API
 npm run dev:server
+
+# Terminal 4 — Vite dev server
 npm run dev:client
 ```
 
@@ -448,6 +454,16 @@ MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/attendly?retry
 
 URL-encode special characters in the password (for example, `@` becomes `%40`).
 
+**Option C — bundled in-memory MongoDB (zero install)**
+
+If you do not have MongoDB installed, start the included in-memory server:
+
+```bash
+npm run dev:db
+```
+
+It listens on `127.0.0.1:27017`, which matches the default `MONGODB_URI`. Keep the terminal open while you work. The data is held in memory and disappears when the process stops, so this mode is for demos and local development only. Seed it in another terminal with `npm run seed:force`.
+
 ### 4. Seed demo data (optional)
 
 ```bash
@@ -509,6 +525,7 @@ Change these credentials before exposing a seeded deployment publicly.
 | Command | Description |
 | --- | --- |
 | `npm run setup` | Install server and client dependencies |
+| `npm run dev:db` | Start the optional in-memory MongoDB on port 27017 |
 | `npm run dev:server` | Start the API with `node --watch` |
 | `npm run dev:client` | Start the Vite dev server |
 | `npm run build` | Build the React app into `client/dist` |
@@ -523,6 +540,7 @@ Change these credentials before exposing a seeded deployment publicly.
 | --- | --- | --- |
 | `server` | `npm start` | `node src/server.js` |
 | `server` | `npm run dev` | `node --watch src/server.js` |
+| `server` | `npm run dev:db` | In-memory MongoDB for local development |
 | `server` | `npm run seed` | Run the seeder |
 | `server` | `npm test` | Node test runner, serially |
 | `client` | `npm run dev` | Vite dev server on port 5173 |
@@ -988,7 +1006,8 @@ Both origins must use HTTPS. If you add a custom frontend domain, update `CLIENT
 | Symptom | Likely cause | Fix |
 | --- | --- | --- |
 | `npm.ps1 cannot be loaded` on Windows | PowerShell execution policy blocks npm shims | Use `npm.cmd`, or run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
-| `MongooseServerSelectionError` / connection timeout | MongoDB not running, wrong URI, or IP not allowlisted | Start MongoDB locally; in Atlas check the password encoding and Network Access list |
+| `MongooseServerSelectionError` / connection timeout | MongoDB not running, wrong URI, or IP not allowlisted | Start MongoDB, run `npm run dev:db`, or use Atlas; then check the URI and Network Access list |
+| No MongoDB installed locally | A database server is required for persistence | Use `npm run dev:db` for an in-memory demo database, or create a free Atlas cluster |
 | Login succeeds locally but 401s after deploy | `JWT_SECRET` changed, or an old token is cached | Sign out, clear `localStorage`, sign in again |
 | `Origin ... is not allowed by CORS` | Frontend origin missing from `CLIENT_URL` | Add the exact origin (scheme + host + port), comma-separate multiple values, redeploy |
 | Blank page or 404 on refresh | SPA build missing or fallback not configured | Run `npm run build`; on split hosting use the included Vercel/Netlify rewrite files |
