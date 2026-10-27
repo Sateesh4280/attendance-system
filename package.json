@@ -1,0 +1,16 @@
+{
+  "name": "attendly",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Attendly - MERN student attendance management system",
+  "scripts": {
+    "setup": "npm --prefix server install && npm --prefix client install",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "seed": "npm --prefix server run seed",
+    "seed:force": "npm --prefix server run seed -- --force",
+    "test": "npm --prefix server test"
+  }
+}

@@ -1,0 +1,26 @@
+# Render Blueprint for Attendly
+#
+# Deploy the whole app as a single web service: Express serves the API and the
+# built React dashboard. You only need a MongoDB connection string.
+#
+# Use "New +" -> "Blueprint" in the Render dashboard and point it at this repo.
+services:
+  - type: web
+    name: attendly
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci --prefix server && npm ci --prefix client && npm run build --prefix client
+    startCommand: npm start --prefix server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
