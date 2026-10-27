@@ -946,7 +946,7 @@ If you prefer to configure Render by hand:
 | Service type | Web Service |
 | Runtime | Node |
 | Region | Your choice (the Blueprint uses `oregon`) |
-| Build command | `npm ci --prefix server && npm ci --prefix client && npm run build --prefix client` |
+| Build command | `npm ci --prefix server --omit=dev && npm ci --prefix client --include=dev && npm run build --prefix client` |
 | Start command | `npm start --prefix server` |
 | Health check path | `/api/health` |
 | Node version | `22.11.0` (via `NODE_VERSION`) |
@@ -977,7 +977,7 @@ You can host the SPA on a CDN and keep only the API on Render.
 
 **Backend on Render**
 
-- Build command: `npm ci --prefix server` (the client build is not needed).
+- Build command: `npm ci --prefix server --omit=dev` (the client build is not needed).
 - Start command: `npm start --prefix server`.
 - Add `CLIENT_URL=https://your-frontend.example.com`.
 - Express serves only `/api` when `client/dist` is absent.
@@ -1012,6 +1012,7 @@ Both origins must use HTTPS. If you add a custom frontend domain, update `CLIENT
 | `Origin ... is not allowed by CORS` | Frontend origin missing from `CLIENT_URL` | Add the exact origin (scheme + host + port), comma-separate multiple values, redeploy |
 | Blank page or 404 on refresh | SPA build missing or fallback not configured | Run `npm run build`; on split hosting use the included Vercel/Netlify rewrite files |
 | `npm ci` fails on Render | Lockfiles missing or out of sync | Run `npm install` in each package, commit both `package-lock.json` files |
+| Build fails with `vite: not found` | `NODE_ENV=production` makes `npm ci` skip devDependencies | Install the client with `npm ci --include=dev` (already configured in `render.yaml`) |
 | Seeder says "Database already has data" | Users already exist | Use `npm run seed:force` only if you intend to wipe data, or create accounts manually |
 | `E11000 duplicate key` during seed | Existing unique values (email, class code, roll number) | Re-run with `--force`, or use a fresh database |
 | Dates appear one day off | Client and server disagree on timezone | Send `YYYY-MM-DD` dates; the API normalizes to UTC midnight by design |
